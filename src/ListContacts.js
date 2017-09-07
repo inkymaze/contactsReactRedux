@@ -18,15 +18,24 @@ class ListContacts extends React.Component {
     this.setState({ query: query.trim() })
   }
 
+  clearQuery = () => {
+    this.setState( {query: ''} )
+  }
+
   render() {
+    const { contacts, onDeleteContact } = this.props;
+    const { query } = this.state;
+
     let showingContacts
-    if (this.state.query) {
+    if (query) {
       // the 'i' ignores case
-      const match = new RegExp(escapeRegExp(this.state.query), 'i')
-      showingContacts = this.props.contacts.filter((contact) => match.test(contact.name))
+      const match = new RegExp(escapeRegExp(query), 'i')
+      showingContacts = contacts.filter((contact) => match.test(contact.name))
     } else {
-      showingContacts= this.props.contacts
+      showingContacts= contacts
     }
+
+
 
     showingContacts.sort(sortBy('name'))
 
@@ -38,9 +47,22 @@ class ListContacts extends React.Component {
             className='search-contacts'
             type='text'
             placeholder='Search Contacts'
-            value={this.state.query}
+            value={query}
             onChange={(e) => this.updateQuery(e.target.value)}/>
+          <a
+            href='#create'
+            onClick={this.props.onNavigate}
+            className='add-contact'>Add Contact</a>
+
         </div>
+
+        {showingContacts.length !== contacts.length && (
+            <div className='showing-contacts'>
+              <span>Now showing {showingContacts.length} of {contacts.length}</span>
+              <button onClick={this.clearQuery}>Show All</button>
+            </div>
+        )}
+
         <ol className='contact-list' >
           {showingContacts.map((contact) => (
             <li key={contact.id} className='contact-list-item'>
@@ -53,7 +75,7 @@ class ListContacts extends React.Component {
               </div>
               <button
                   className='contact-remove'
-                  onClick={() => this.props.onDeleteContact(contact)}>
+                  onClick={() => onDeleteContact(contact)}>
                 Remove
               </button>
             </li>
